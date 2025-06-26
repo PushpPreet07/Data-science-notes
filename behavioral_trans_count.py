@@ -155,3 +155,47 @@ monthly_new_bene["new_bene_spike_flag"] = (monthly_new_bene["new_bene_diff_zscor
 # - Current month
 # - Diff, z-score, spike flag
 # ---------------------------------------------
+
+import pandas as pd
+import numpy as np
+
+# ---------------------------------------------
+# STEP 1: Prepare datetime and extract month
+# ---------------------------------------------
+df['valuedatetime'] = pd.to_datetime(df['valuedatetime'])
+df['month'] = df['valuedatetime'].dt.to_period('M')
+
+# ---------------------------------------------
+# STEP 2: Filter last 6 months of data
+# ---------------------------------------------
+latest_month = df['month'].max()
+last_6_months = pd.period_range(end=latest_month, periods=6, freq='M')
+df_6m = df[df['month'].isin(last_6_months)]
+
+# ---------------------------------------------
+# STEP 3: Compute per-account avg & std of transaction amount
+# ---------------------------------------------
+account_stats = (
+    df_6m.groupby('acc_id')['transaction_amount']
+    .agg(['mean', 'std'])
+    .rename(columns={'mean': 'txn_amt_mean_6m', 'std': 'txn_amt_std_6m'})
+    .reset_index()
+)
+
+# ---------------------------------------------
+# STEP 4: Merge stats back to original df
+# ---------------------------------------------
+df = df.merge(account_stats, on='acc_id', how='left')
+
+# ---------------------------------------------
+# STEP 5: Compute Z-score (with smoothing for std = 0)
+# ---------------------------------------------
+df['transaction_amount_zscore'] = (
+    (df['transaction_amount'] - df['txn_amt_mean_6m']) /
+    (df['txn_amt_std_6m'] + 1e-5)
+)
+
+# Optional: Flag as anomaly
+df['transaction_amount_zscore_flag'] = (df['transaction_amount_zscore'].abs() > 3).astype(int)
+
+# Final feature: transaction_amount_zscore
