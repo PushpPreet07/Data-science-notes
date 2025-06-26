@@ -156,12 +156,15 @@ monthly_new_bene["new_bene_spike_flag"] = (monthly_new_bene["new_bene_diff_zscor
 # - Diff, z-score, spike flag
 # ---------------------------------------------
 
-import pandas as pd
+iimport pandas as pd
 import numpy as np
 
 # ---------------------------------------------
-# STEP 1: Prepare datetime and extract month
+# STEP 1: Extract acc_id and convert dates
 # ---------------------------------------------
+df[['acc_id', 'beneficiary_id']] = df['beneidnumber'].str.split('_', expand=True)
+df['acc_id'] = df['acc_id'].astype(int)
+df['beneficiary_id'] = df['beneficiary_id'].astype(int)
 df['valuedatetime'] = pd.to_datetime(df['valuedatetime'])
 df['month'] = df['valuedatetime'].dt.to_period('M')
 
@@ -173,29 +176,49 @@ last_6_months = pd.period_range(end=latest_month, periods=6, freq='M')
 df_6m = df[df['month'].isin(last_6_months)]
 
 # ---------------------------------------------
-# STEP 3: Compute per-account avg & std of transaction amount
+# STEP 3: Compute average transaction amount per acc_id per month
 # ---------------------------------------------
-account_stats = (
-    df_6m.groupby('acc_id')['transaction_amount']
-    .agg(['mean', 'std'])
-    .rename(columns={'mean': 'txn_amt_mean_6m', 'std': 'txn_amt_std_6m'})
+monthly_txn_amt = (
+    df_6m.groupby(['acc_id', 'month'])['transaction_amount']
+    .mean()
     .reset_index()
+    .pivot(index='acc_id', columns='month', values='transaction_amount')
+    .fillna(0)
 )
 
-# ---------------------------------------------
-# STEP 4: Merge stats back to original df
-# ---------------------------------------------
-df = df.merge(account_stats, on='acc_id', how='left')
+# Rename columns
+monthly_txn_amt.columns = [f'txn_amt_mean_{str(m)}' for m in monthly_txn_amt.columns]
+monthly_txn_amt = monthly_txn_amt.reset_index()
 
 # ---------------------------------------------
-# STEP 5: Compute Z-score (with smoothing for std = 0)
+# STEP 4: Compute current, past avg, diff, z-score, flag
 # ---------------------------------------------
-df['transaction_amount_zscore'] = (
-    (df['transaction_amount'] - df['txn_amt_mean_6m']) /
-    (df['txn_amt_std_6m'] + 1e-5)
+month_cols = [col for col in monthly_txn_amt.columns if col.startswith('txn_amt_mean_')]
+month_cols_sorted = sorted(month_cols)
+
+current_month_col = month_cols_sorted[-1]
+past_month_cols = month_cols_sorted[:-1]
+
+monthly_txn_amt["current_month_txn_amt"] = monthly_txn_amt[current_month_col]
+monthly_txn_amt["past_5m_avg_txn_amt"] = monthly_txn_amt[past_month_cols].mean(axis=1)
+monthly_txn_amt["txn_amt_diff"] = (
+    monthly_txn_amt["current_month_txn_amt"] - monthly_txn_amt["past_5m_avg_txn_amt"]
 )
 
-# Optional: Flag as anomaly
-df['transaction_amount_zscore_flag'] = (df['transaction_amount_zscore'].abs() > 3).astype(int)
+# Z-score
+mean_diff = monthly_txn_amt["txn_amt_diff"].mean()
+std_diff = monthly_txn_amt["txn_amt_diff"].std()
+monthly_txn_amt["txn_amt_diff_zscore"] = (
+    (monthly_txn_amt["txn_amt_diff"] - mean_diff) / (std_diff + 1e-5)
+)
 
-# Final feature: transaction_amount_zscore
+# Flag spike
+monthly_txn_amt["txn_amt_spike_flag"] = (monthly_txn_amt["txn_amt_diff_zscore"] > 2).astype(int)
+
+# ---------------------------------------------
+# Final Output: monthly_txn_amt contains per-account
+# - Monthly average txn amount
+# - Current month txn amount
+# - Past 5-month avg
+# - Diff, z-score, spike flag
+# ---------------------------------------------
