@@ -1,0 +1,83 @@
+Temporal Pattern Anomalies
+Unusual timing patterns - HNW individuals typically have predictable transaction rhythms. Look for:
+
+Transactions at unusual hours (middle of night, holidays)
+Sudden clustering of large transactions in short time windows
+Deviation from historical day-of-week or month patterns
+Transactions during known personal absence periods (vacations, medical leave)
+
+Frequency deviations - Create features around transaction cadence:
+
+Sudden spikes or drops in transaction frequency
+Changes in average time between transactions
+Unusual dormancy periods followed by high activity
+
+Relationship and Network Anomalies
+New beneficiary patterns - Since HNW clients often have established networks:
+
+First-time beneficiaries receiving large amounts
+Transactions to beneficiaries with no prior relationship history
+Geographic outliers in beneficiary locations
+Beneficiaries with unusual account characteristics (new accounts, offshore entities)
+
+Beneficiary concentration shifts - Look for changes in:
+
+Sudden concentration of funds to single beneficiaries
+Deviation from typical beneficiary diversification patterns
+Unusual beneficiary types (individual vs. corporate vs. trust patterns)
+
+Transaction Value and Pattern Anomalies
+Amount-based anomalies - Even with high-value transactions:
+
+Amounts just below regulatory reporting thresholds (potential structuring)
+Unusual round numbers or specific amount patterns
+Transactions significantly larger than historical maximums
+Sudden changes in typical transaction size distributions
+
+Sequential transaction patterns - Look for:
+
+Rapid-fire transactions to same beneficiaries
+Layered transactions (complex routing patterns)
+Mirror transactions (offsetting flows)
+Transaction amounts that sum to specific totals
+
+Account Behavior Anomalies
+Cross-account coordination - If clients have multiple accounts:
+
+Synchronized activity across accounts
+Unusual fund movement patterns between accounts
+Coordinated timing of transactions from different accounts
+
+Balance management anomalies - Changes in:
+
+Account balance maintenance patterns
+Cash flow timing relative to known income/investment cycles
+Unusual account funding sources
+
+Geographic and Jurisdictional Red Flags
+Location-based anomalies - Transactions involving:
+
+High-risk jurisdictions or tax havens
+Sudden geographic diversification of beneficiaries
+Transactions to locations with no business/personal connection
+Routing through unusual correspondent banking relationships
+
+Behavioral Consistency Anomalies
+Communication pattern changes - If you have interaction data:
+
+Changes in transaction authorization methods
+Unusual urgency or pressure in transaction requests
+Deviations from normal communication channels
+
+Seasonal/cyclical deviations - Look for:
+
+Transactions that don't align with known tax planning cycles
+Unusual activity during typically quiet periods
+Deviations from investment/business cycle patterns
+
+Implementation Suggestions
+Create composite anomaly scores combining multiple factors, as sophisticated financial crimes often involve multiple subtle deviations rather than single obvious red flags. Consider using:
+
+Rolling window statistics to capture evolving baselines
+Peer group comparisons among similar HNW clients
+Machine learning models that can detect complex interaction patterns between features
