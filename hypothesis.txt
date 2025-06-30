@@ -81,3 +81,14 @@ Create composite anomaly scores combining multiple factors, as sophisticated fin
 Rolling window statistics to capture evolving baselines
 Peer group comparisons among similar HNW clients
 Machine learning models that can detect complex interaction patterns between features
+
+
+
+Net amount volatility spikes compared to rolling averages
+Daily absolute volume spikes (e.g., >3 standard deviations from mean)
+Unusual clustering of same-direction transactions
+Transfer timing patterns that suggest coordination across accounts
+Sudden spike in number of currencies used per day
+Use of currencies with no historical precedent
+Currency combinations that don't align with client's geographic footprint
+High absolute volume with low net amount (classic churning indicator)
