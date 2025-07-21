@@ -1,0 +1,16 @@
+Feature Name	Description
+total_in_amt	Sum of incoming transaction amounts
+total_out_amt	Sum of outgoing transaction amounts
+count_in	Number of incoming transactions
+count_out	Number of outgoing transactions
+net_amt	total_in_amt - total_out_amt
+directionality_ratio	count_in / (count_out + 1e-6)
+net_flow_ratio	See formula above
+rolling_mean_in_30d	Rolling mean of incoming amounts (30 days)
+rolling_mean_out_30d	Rolling mean of outgoing amounts (30 days)
+unique_in_counterparties	Unique senders in last 30/90 days
+unique_out_counterparties	Unique recipients in last 30/90 days
+entropy_in_counterparties	Entropy of incoming counterparties
+entropy_out_counterparties	Entropy of outgoing counterparties
+odd_hour_in_fraction	Fraction of incoming at unusual hours
+odd_hour_out_fraction	Fraction of outgoing at unusual hours
